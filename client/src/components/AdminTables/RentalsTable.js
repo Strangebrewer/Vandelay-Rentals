@@ -61,6 +61,11 @@ export class RentalsTable extends Component {
       }
     });
   };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
   // END MODAL TOGGLE FUNCTIONS
 
   // IMAGEMODAL TOGGLE FUNCTIONS
@@ -486,6 +491,7 @@ export class RentalsTable extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <ImageModal
           show={this.state.imageModal.isOpen}

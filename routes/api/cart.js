@@ -1,11 +1,6 @@
 const router = require('express').Router();
-const passport = require('../../passport');
 const cartController = require('../../controllers/cartController');
 
-// Matches with '/api/cart'
-//  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-// router.route('/')
-//   .get(cartController.findAll);
 
 // Matches with '/api/cart/:id'
 // the id is the user's id - this gets a user's cart

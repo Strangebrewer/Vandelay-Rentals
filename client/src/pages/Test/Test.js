@@ -8,7 +8,6 @@ import ParallaxHero from "../../components/ParallaxHero"
 import RentalCard from "../../components/Cards/RentalCard";
 import "./Test.css";
 import { CategoryCard } from "../../components/Cards/CategoryCard/CategoryCard";
-import Calendar from "react-calendar";
 
 class Test extends Component {
   state = {
@@ -48,6 +47,11 @@ class Test extends Component {
       }
     });
   }
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   toggleLoadingModal = () => {
     this.setState({
@@ -169,6 +173,7 @@ class Test extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <LoadingModal show={this.state.loadingModalOpen} />
         <NavBar
@@ -208,14 +213,6 @@ class Test extends Component {
 
             <button onClick={this.getAllCourses}>Get Courses</button>
 
-            <Calendar
-              onChange={this.onChange}
-              // value={this.state.date}
-              calendarType={"US"}
-              selectRange={true}
-              returnValue={"range"}
-              className={"calendar"}
-            />
             <div style={{ position: 'relative', top: 50 + 'px', left: 25 + 'px' }}>{this.state.unix.join(" ")}</div>
 
 

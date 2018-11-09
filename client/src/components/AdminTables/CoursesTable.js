@@ -38,7 +38,7 @@ export class CoursesTable extends Component {
   // MODAL TOGGLE FUNCTIONS
   closeModal = () => {
     this.setState({ modal: { isOpen: false } });
-  }
+  };
 
   setModal = (modalInput) => {
     this.setState({
@@ -48,7 +48,12 @@ export class CoursesTable extends Component {
         buttons: modalInput.buttons
       }
     });
-  }
+  };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
   // END MODAL TOGGLE FUNCTIONS
 
   //  Toggles a non-dismissable loading modal to prevent clicks while database ops are ongoign
@@ -404,6 +409,7 @@ export class CoursesTable extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <LoadingModal show={this.state.loadingModalOpen} />
         <div className="main-table-container courses-table">

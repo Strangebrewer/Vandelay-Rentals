@@ -32,6 +32,11 @@ export class ChangePwForm extends Component {
     });
   }
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({
@@ -73,6 +78,7 @@ export class ChangePwForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <h3>Change Password</h3>

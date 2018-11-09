@@ -15,12 +15,10 @@ export class AddCategoryForm extends Component {
   }
 
   closeModal = () => {
-    this.setState({
-      modal: { isOpen: false }
-    });
-  }
+    this.setState({ modal: { isOpen: false } });
+  };
 
-  setModal = (modalInput) => {
+  setModal = modalInput => {
     this.setState({
       modal: {
         isOpen: true,
@@ -28,7 +26,12 @@ export class AddCategoryForm extends Component {
         buttons: modalInput.buttons
       }
     });
-  }
+  };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   handleInputChange = event => {
     const { name, value } = event.target;
@@ -62,6 +65,7 @@ export class AddCategoryForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <Input

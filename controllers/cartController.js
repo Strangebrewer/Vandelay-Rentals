@@ -3,11 +3,6 @@ const db = require('../models');
 // Defining methods for the coursesController
 module.exports = {
 
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // findAll: function (req, res) {
-
-  // },
-
   findUserCart: function (req, res) {
     db.ShoppingCart.findOne({ customerId: req.user._id })
       .populate("tempRegistrations")
@@ -17,15 +12,12 @@ module.exports = {
   },
 
   addRegistrationToCart: function (req, res) {
-    // console.log("Course req.body:")
-    // console.log(req.body);
 
     db.TempRegistration.find({
       courseId: req.params.id,
       customerId: req.user._id
     })
       .then(tempReg => {
-        // console.log(tempReg);
         if (tempReg.length > 0) {
           return res.send({ message: "duplicate" });
         } else {
@@ -78,8 +70,6 @@ module.exports = {
   },
 
   addReservationToCart: function (req, res) {
-    // console.log("Rental req.body:")
-    // console.log(req.body);
 
     const reservationObject = {
       itemId: req.body._id,

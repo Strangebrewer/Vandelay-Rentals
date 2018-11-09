@@ -7,7 +7,7 @@ import { BrandonTestTable, RentalsTable, CoursesTable, SalesTable, UsersTable, T
 import { AdminForms } from "../../components/AdminForms";
 import "../Admin/Admin.css";
 
-class Admin extends Component {
+class TestAdmin extends Component {
   state = {
     modal: {
       isOpen: false,
@@ -39,6 +39,11 @@ class Admin extends Component {
       }
     });
   }
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   toggleLoadingModal = () => {
     this.setState({
@@ -140,6 +145,7 @@ class Admin extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <LoadingModal show={this.state.loadingModalOpen} />
         <NavBar
@@ -227,4 +233,4 @@ class Admin extends Component {
   }
 }
 
-export default Admin;
+export default TestAdmin;

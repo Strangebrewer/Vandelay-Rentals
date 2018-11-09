@@ -30,6 +30,11 @@ export class LoginForm extends Component {
     });
   }
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
     this.setState({
@@ -77,6 +82,7 @@ export class LoginForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <Input

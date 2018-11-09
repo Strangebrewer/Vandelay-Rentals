@@ -44,6 +44,11 @@ export class UserUpdateForm extends Component {
     });
   };
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
 
   handleFormSubmit = event => {
     event.preventDefault();
@@ -106,6 +111,7 @@ export class UserUpdateForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <h3>Edit Your Info</h3>

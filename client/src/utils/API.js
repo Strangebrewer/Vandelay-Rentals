@@ -6,7 +6,7 @@ export default {
   //  IMAGE ROUTES FOR RENTALS
   // Gets image names from the database so they can be inserted into img tags
   getImageNames: function (id) {
-    return axios.get(`/file/image/names/${id}`);
+    return axios.get(`/file/image/filenames/${id}`);
   },
 
   //  Uploads images to the database and associates them to a rental
@@ -28,7 +28,7 @@ export default {
   //  IMAGE ROUTES FOR PASTRENTALS
   // Gets pastRental image names from the database so they can be inserted into img tags
   getPastRentalImageNames: function (id) {
-    return axios.get(`/file/image/past/names/${id}`);
+    return axios.get(`/file/image/past/filenames/${id}`);
   },
 
   //  Uploads pastRental images to the database and associates them to a rental
@@ -50,7 +50,7 @@ export default {
   //  WAIVER ROUTE
   // Creates a new signature request using the helloSign API
   createSignatureRequest: function (email, name) {
-    return axios.post('/file/waiver/create-signature-request',
+    return axios.post('/file/waiver',
       {
         clientEmail: email,
         clientName: name,
@@ -60,21 +60,7 @@ export default {
     )
   },
 
-  // CHARGE ROUTES
-  // Send charge to Stripe
-  charge: function (charge) {
-    return axios.post('/api/charge', charge);
-  },
-  // Update reservation paid status
-  logResPayment: function (res, total) {
-    return axios.put('/api/charge/respaid', { reservation: res, resTotal: total });
-  },
-  // Update registration paid status
-  logRegPayment: function (reg, total) {
-    return axios.put('/api/charge/regpaid', { registration: reg, regTotal: total });
-  },
-
-  // USER AUTHENTICATION ROUTES
+  // AUTHENTICATION ROUTES
   // Get user info
   getUser: function () {
     return axios.get('/user');
@@ -141,6 +127,21 @@ export default {
   checkoutAllCartItems: (checkoutObject) => {
     return axios.post('/api/cart/checkout', checkoutObject);
   },
+  
+
+  // CHARGE ROUTES
+  // Send charge to Stripe
+  charge: function (charge) {
+    return axios.post('/api/charge', charge);
+  },
+  // Update reservation paid status
+  logResPayment: function (res, total) {
+    return axios.put('/api/charge/reservation/paid', { reservation: res, resTotal: total });
+  },
+  // Update registration paid status
+  logRegPayment: function (reg, total) {
+    return axios.put('/api/charge/registration/paid', { registration: reg, regTotal: total });
+  },
 
 
   // USER ROUTES
@@ -162,7 +163,7 @@ export default {
 
   // Remove a reservation
   removeCourseRegistration: function (id, reservationData) {
-    return axios.put(`/api/courses/remove/${id}`, reservationData);
+    return axios.put(`/api/courses/cancel/${id}`, reservationData);
   },
 
   // Gets a single course by id
@@ -200,7 +201,7 @@ export default {
   },
   // Cancels a reservation - 'reservationData' collected by event listener and should include the item info and the user.
   removeRentalReservation: function (reservationId, reservationData) {
-    return axios.put(`/api/rentals/remove/${reservationId}`, reservationData);
+    return axios.put(`/api/rentals/cancel/${reservationId}`, reservationData);
   },
 
 
@@ -209,16 +210,6 @@ export default {
   getAllSaleItems: function () {
     return axios.get('/api/sales/');
   },
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets a single sale item
-  // getSaleItemsByCategory: function (category) {
-  //   return axios.get(`/api/sales/${category}`);
-  // },
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets a single sale item
-  // getSaleItemById: function (category, id) {
-  //   return axios.get(`/api/sales/${category}/${id}`);
-  // },
 
 
 
@@ -229,11 +220,6 @@ export default {
   adminGetAllUsers: function () {
     return axios.get('/admin/users');
   },
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets one user by id
-  // adminGetUserById: function (id) {
-  //   return axios.get(`/admin/users/${id}`)
-  // },
 
   // Gets one user by id and updates their data - including changing passwords
   adminUpdateUser: function (id, userData) {
@@ -276,12 +262,6 @@ export default {
     return axios.post('/admin/courses', courseData);
   },
 
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets one course by id
-  // adminGetCourseById: function (id) {
-  //   return axios.get(`/admin/courses/${id}`);
-  // },
-
   // Update course information
   adminUpdateCourse: function (id, courseData) {
     return axios.put(`/admin/courses/${id}`, courseData);
@@ -321,12 +301,6 @@ export default {
     return axios.post(`/admin/rentals/reservations/${id}`, reservationData)
   },
 
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets Rental item by id - if the user chooses a particular item, this will pull the data for it.
-  // adminGetRentalsById: function (id) {
-  //   return axios.get(`/admin/rentals/${id}`);
-  // },
-
   // Update rental item data - admin function
   adminUpdateRental: function (id, rentalData) {
     return axios.put(`/admin/rentals/${id}`, rentalData);
@@ -354,12 +328,6 @@ export default {
   adminAddSaleItem: function (saleItemData) {
     return axios.post('/admin/sales', saleItemData);
   },
-
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // Gets a single sale item
-  // adminGetSaleItemById: function (id) {
-  //   return axios.get(`/admin/sales/${id}`);
-  // },
 
   // Update sale item, including recording sale
   adminUpdateSaleItem: function (id, saleItemData) {

@@ -22,7 +22,7 @@ export class AdminForms extends Component {
     this.setState({
       modal: { isOpen: false }
     });
-  }
+  };
 
   setModal = (modalInput) => {
     this.setState({
@@ -32,13 +32,16 @@ export class AdminForms extends Component {
         buttons: modalInput.buttons
       }
     });
-  }
+  };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   handleInputChange = event => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   };
 
   toggleCourseForm = () => {
@@ -109,6 +112,7 @@ export class AdminForms extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <div id="admin-forms-container">
           {this.state.forms.addCourse ? (
@@ -119,7 +123,6 @@ export class AdminForms extends Component {
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleRentalForm}>Rental</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleSaleItemForm}>Sale Item</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleUserForm}>User</button>
-                <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleCategoryForm}>Category</button>
               </div>
               <div className="admin-form-div">
                 <h2>New Course</h2>
@@ -136,7 +139,6 @@ export class AdminForms extends Component {
                 <button className="admin-toggle-btn">Rental</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleSaleItemForm}>Sale Item</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleUserForm}>User</button>
-                <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleCategoryForm}>Category</button>
               </div>
               <div className="admin-form-div">
                 <h2>New Rental</h2>
@@ -153,7 +155,6 @@ export class AdminForms extends Component {
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleRentalForm}>Rental</button>
                 <button className="admin-toggle-btn">Sale Item</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleUserForm}>User</button>
-                <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleCategoryForm}>Category</button>
               </div>
               <div className="admin-form-div">
                 <h2>New Sale Item</h2>
@@ -170,7 +171,6 @@ export class AdminForms extends Component {
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleRentalForm}>Rental</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleSaleItemForm}>Sale Item</button>
                 <button className="admin-toggle-btn">User</button>
-                <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleCategoryForm}>Category</button>
               </div>
               <div className="admin-form-div">
                 <h2>New User</h2>
@@ -187,7 +187,6 @@ export class AdminForms extends Component {
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleRentalForm}>Rental</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleSaleItemForm}>Sale Item</button>
                 <button className="admin-toggle-btn admin-toggle-btn-light" onClick={this.toggleUserForm}>User</button>
-                <button className="admin-toggle-btn">Category</button>
               </div>
               <div className="admin-form-div">
                 <h2>New Category</h2>

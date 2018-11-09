@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const passport = require('../../passport');
 const coursesController = require('../../controllers/coursesController');
 
 // Matches with '/api/courses'
@@ -14,7 +13,7 @@ router
   .put(isLoggedIn, coursesController.checkSpace);
 
 router
-  .route('/remove/:id')
+  .route('/cancel/:id')
   .put(isLoggedIn, coursesController.removeCourseRegistration);
 
 function isLoggedIn(req, res, next) {

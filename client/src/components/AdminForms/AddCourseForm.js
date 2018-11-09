@@ -22,9 +22,7 @@ export class AddCourseForm extends Component {
   }
 
   closeModal = () => {
-    this.setState({
-      modal: { isOpen: false }
-    });
+    this.setState({ modal: { isOpen: false } });
   }
 
   setModal = (modalInput) => {
@@ -37,11 +35,14 @@ export class AddCourseForm extends Component {
     });
   }
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
   handleInputChange = event => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   };
 
 
@@ -52,7 +53,7 @@ export class AddCourseForm extends Component {
 
     //  The form will accept any text for a date, but if dateFns rejects it as invalid, it will return a modal with acceptable format examples - so a validation regex pattern for all possible acceptable date formats is unnecessary and would be extremely difficult to create
     const unixDate = dateFns.format(date, "X");
-    
+
     //  length of 6 seems to be the shortest valid date
     //  (e.g. 1/1/18, Feb 4 16, or 9-5-13)
     if (date.length < 6 || unixDate === "Invalid Date") {
@@ -120,6 +121,7 @@ export class AddCourseForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <Input

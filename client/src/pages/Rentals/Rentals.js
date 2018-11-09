@@ -46,6 +46,11 @@ class Rentals extends Component {
 		});
 	};
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
 	toggleLoadingModal = () => {
 		this.setState({
 			loadingModalOpen: !this.state.loadingModalOpen
@@ -270,6 +275,7 @@ class Rentals extends Component {
 					closeModal={this.closeModal}
 					body={this.state.modal.body}
 					buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
 				/>
 				<NavBar
 					loggedIn={this.props.loggedIn}

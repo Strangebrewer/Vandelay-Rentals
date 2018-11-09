@@ -1,6 +1,7 @@
 const db = require('../models');
 const mongoose = require('mongoose');
 const Grid = require('gridfs-stream');
+const hellosign = require('hellosign-sdk')({key: "885fe716760ad052c0df78878bd1aeb6f09292b59d82fe035888a457cc4c133a"}); // hellosign SDK in order to run hellosign api calls
 
 let gfs;
 
@@ -17,11 +18,9 @@ module.exports = {
   findAllRentalImages: function (req, res) {
     db.Rental.findOne({ _id: req.params.id })
       .then(rental => {
-        console.log(rental.images);
         gfs.files.find({
           _id: { $in: rental.images }
         }).toArray((err, files) => {
-          console.log(files);
           res.send(files);
         })
       })
@@ -49,22 +48,16 @@ module.exports = {
   },
 
   createRentalImage: function (req, res) {
-    console.log("Here's the uploaded image data:");
-    console.log(req.file);
     db.Rental.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { images: req.file.id } },
       { new: true }
     ).then(file => {
-      console.log(file);
       res.json(file);
     })
   },
 
   removeRentalImage: function (req, res) {
-    console.log("Delete route active...");
-    console.log(`Rental _id: `);
-    console.log(req.params.rental);
     gfs.remove({ _id: req.params.id, root: 'uploads' }, (err, gridStore) => {
       if (err) return res.status(404).json({ err: err });
       db.Rental.findOneAndUpdate(
@@ -80,33 +73,25 @@ module.exports = {
   findAllPastRentalImages: function (req, res) {
     db.PastRental.findOne({ _id: req.params.id })
       .then(pr => {
-        console.log(pr.images);
         gfs.files.find({
           _id: { $in: pr.images }
         }).toArray((err, files) => {
-          console.log(files);
           res.send(files);
         })
       })
   },
 
   createPastRentalImage: function (req, res) {
-    console.log("Here's the uploaded image data:");
-    console.log(req.file);
     db.PastRental.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { images: req.file.id } },
       { new: true }
     ).then(file => {
-      console.log(file);
       res.json(file);
     })
   },
 
   removePastRentalImage: function (req, res) {
-    console.log("Delete route active...");
-    console.log(`Rental _id: `);
-    console.log(req.params.rental);
     gfs.remove({ _id: req.params.id, root: 'uploads' }, (err, gridStore) => {
       if (err) return res.status(404).json({ err: err });
       db.PastRental.findOneAndUpdate(
@@ -117,5 +102,53 @@ module.exports = {
         res.json(rental);
       })
     });
+  },
+
+  // hellosign-embeded
+  createSignatureRequest: function (req, res) {
+
+    //captures the client's email and their name from the request.body
+    const { clientEmail , clientName } = req.body;
+
+    // hellosign client id and key that are specified for our app (Vandelay Rental) on their site
+    const options = {
+      clientId: "aaad4deadb45633d2cc5ebe07ed2eff2", // our app client id
+      test_mode: 1, // test mode active, required for non-paid account and is not legally binding
+      subject: 'Waiver form to sign for Vandelay Rentals',
+      template_id:"490bc3ea7078ff84da3e7fe13f919de766d1a743" ,
+      message: 'Please sign and read this waiver in order to continue with the rental process.',
+      signers: [
+        {
+          email_address: clientEmail, // passed from the deconstructed req.bode
+          name: clientName, // passed from the deconstructed req.bode
+          role: "client",
+          order: 0
+        }
+      ],
+    };
+
+    hellosign.signatureRequest.createEmbeddedWithTemplate(options)
+
+    .then((data) => {
+
+      const firstSignature = data.signature_request.signatures[0];
+      const signatureId = firstSignature.signature_id;
+
+      return hellosign.embedded.getSignUrl(signatureId);
+      })
+      .then((response) => {
+        res.json({
+          success: true,
+          data: {
+            signUrl: response.embedded.sign_url
+          }
+        });
+      })
+    .catch((err) => {
+      res.json({
+        success: false
+      });
+    });
   }
+
 };

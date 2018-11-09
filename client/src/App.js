@@ -4,10 +4,6 @@ import ClipboardJS from "clipboard";
 import Home from "./pages/Home";
 import Rentals from "./pages/Rentals";
 import Test from "./pages/Test";
-import TestNick from "./pages/TestNick";
-import TestBen from "./pages/TestBen";
-import TestBrandon from "./pages/TestBrandon";
-import TestCorb from "./pages/TestCorb";
 import ShoppingCart from "./pages/ShoppingCart";
 import Waiver from "./pages/Waiver";
 import Sales from "./pages/Sales";
@@ -16,8 +12,7 @@ import Courses from "./pages/Courses";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Admin from "./pages/Admin";
-import AdminKeith from "./pages/AdminKeith";
-import AdminBrandon from "./pages/AdminBrandon";
+import TestAdmin from "./pages/TestAdmin";
 import AddPropsToRoute from "./components/AddPropsToRoute";
 import NoMatch from "./pages/NoMatch";
 import Modal from "./components/Elements/Modal";
@@ -205,6 +200,7 @@ class App extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <Router>
           <Switch>
@@ -369,66 +365,16 @@ class App extends Component {
               logout: this.logout
             })}
             />
-            <PrivateRoute path="/testnick" component={AddPropsToRoute(TestNick, {
+            <AdminRoute path="/testAdmin" component={AddPropsToRoute(TestAdmin, {
               updateUser: this.updateUser,
               loggedIn: this.state.loggedIn,
               firstName: this.state.firstName,
               admin: this.state.admin,
               dev: this.state.dev,
               logout: this.logout
-            })}
-            />
-            <PrivateRoute path="/testben" component={AddPropsToRoute(TestBen, {
-              updateUser: this.updateUser,
-              loggedIn: this.state.loggedIn,
-              firstName: this.state.firstName,
-              admin: this.state.admin,
-              dev: this.state.dev,
-              logout: this.logout
-            })}
-            />
-            <PrivateRoute path="/testbrandon" component={AddPropsToRoute(TestBrandon, {
-              updateUser: this.updateUser,
-              loggedIn: this.state.loggedIn,
-              firstName: this.state.firstName,
-              admin: this.state.admin,
-              dev: this.state.dev,
-              logout: this.logout
-            })}
-            />
-            <PrivateRoute path="/testcorb" component={AddPropsToRoute(TestCorb, {
-              updateUser: this.updateUser,
-              loggedIn: this.state.loggedIn,
-              firstName: this.state.firstName,
-              admin: this.state.admin,
-              dev: this.state.dev,
-              logout: this.logout
-            })}
-            />
-            <AdminRoute path="/adminbrandon" component={AddPropsToRoute(AdminBrandon, {
-              updateUser: this.updateUser,
-              loggedIn: this.state.loggedIn,
-              firstName: this.state.firstName,
-              admin: this.state.admin,
-              dev: this.state.dev,
-              logout: this.logout
-            })}
-            />
-            <AdminRoute path="/adminkeith" component={AddPropsToRoute(AdminKeith, {
-              updateUser: this.updateUser,
-              loggedIn: this.state.loggedIn,
-              firstName: this.state.firstName,
-              admin: this.state.admin,
-              dev: this.state.dev,
-              logout: this.logout,
-              categories: this.state.categories,
-              setCategories: this.setCategories
             })}
             />
             <Route
-              //component={NoMatch}
-              // exact
-              //path="*"
               render={routeProps => (
                 <Fragment>
                   <NoMatch

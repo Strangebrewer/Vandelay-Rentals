@@ -27,7 +27,7 @@ export class AddSaleItemForm extends Component {
     this.setState({
       modal: { isOpen: false }
     });
-  }
+  };
 
   setModal = (modalInput) => {
     this.setState({
@@ -37,13 +37,16 @@ export class AddSaleItemForm extends Component {
         buttons: modalInput.buttons
       }
     });
-  }
+  };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   handleInputChange = event => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   };
 
   handleFormSubmit = event => {
@@ -53,7 +56,7 @@ export class AddSaleItemForm extends Component {
     //  The form will accept any text for a date, but if dateFns rejects it as invalid, it will return a modal with acceptable format examples - so a validation regex pattern for all possible acceptable date formats is unnecessary and would be extremely difficult to create
     const unixDate = dateFns.format(dateAcquired, "X");
     console.log(dateAcquired);
-    
+
     //  length of 6 seems to be the shortest valid date
     //  (e.g. 1/1/18, Feb 4 16, or 9-5-13)
     if (dateAcquired.length < 6 || unixDate === "Invalid Date") {
@@ -131,6 +134,7 @@ export class AddSaleItemForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <Input

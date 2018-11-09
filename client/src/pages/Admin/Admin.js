@@ -40,6 +40,11 @@ class Admin extends Component {
     });
   }
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
   toggleLoadingModal = () => {
     this.setState({
       loadingModalOpen: !this.state.loadingModalOpen
@@ -125,6 +130,7 @@ class Admin extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <LoadingModal show={this.state.loadingModalOpen} />
         <NavBar

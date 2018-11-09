@@ -12,10 +12,10 @@ router
   .route('/:category')
   .get(rentalsController.findByCategory);
 
-// Matches with '/api/rentals/remove/:from/:to'
+// Matches with '/api/rentals/remove/:id'
 // removes a reservation
 router
-  .route('/remove/:id')
+  .route('/cancel/:id')
   .put(isLoggedIn, rentalsController.breakReservation);
 
 // Matches with '/api/rentals/:category/:id'

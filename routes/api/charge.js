@@ -7,11 +7,11 @@ router
   .post(isLoggedIn, chargeController.charge);
 
 router
-  .route('/respaid')
+  .route('/reservation/paid')
   .put(isLoggedIn, chargeController.respaid);
 
 router
-  .route('/regpaid')
+  .route('/registration/paid')
   .put(isLoggedIn, chargeController.regpaid);
 
 function isLoggedIn(req, res, next) {

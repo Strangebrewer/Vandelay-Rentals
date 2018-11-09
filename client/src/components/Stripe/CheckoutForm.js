@@ -47,6 +47,11 @@ class CheckoutForm extends Component {
     }
   }
 
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
+
   removeRegistrationFromCart = id => {
     // console.log("INSIDE OF THE REMOVE REGISTRATIONS FROM CART FUNCTION")
     this.toggleLoadingModal();
@@ -75,39 +80,18 @@ class CheckoutForm extends Component {
   }
 
   checkout = () => {
-    // console.log("running checkout")
     this.props.toggleLoadingModal();
     let checkArray = [];
-    // let promiseArray = [];
-    // console.log("Start temp reservations")
-    // console.log(this.props.tempReservations)
-    // console.log("end temp reservatios")
-    // console.log("Start temp registrations")
-    // console.log(this.props.tempRegistrations)
-    // console.log("end temp registrations")
     this.props.tempReservations.forEach(res => {
       const checkQuery = API.finalCheck(res);
-      // const resQuery = API.reserveRental(res);
       checkArray.push(checkQuery);
-      // promiseArray.push(resQuery);
-      // API.finalCheck(res).then(response => { checkArray.push(response.data) })
     });
     this.props.tempRegistrations.forEach(reg => {
       const spaceQuery = API.checkSpace(reg._id, reg)
-      // const regQuery = API.reserveCourse(reg._id, reg);
       checkArray.push(spaceQuery);
-      // promiseArray.push(regQuery);
-      // API.checkSpace(reg).then(response => { checkArray.push(response.data); console.log(checkArray); })
     });
-    // if (checkArray.includes('data.response: "success"'))
-    // console.log("***CHECKARRAY***");
-    // console.log(checkArray);
-    // console.log("***PROMISEARRAY***");
-    // console.log(promiseArray);
     Promise.all(checkArray)
       .then(response => {
-        // console.log(res)
-        // console.log(response)
         let noGood = [];
         let types = [];
         for (let i = 0; i < response.length; i++) {
@@ -115,12 +99,9 @@ class CheckoutForm extends Component {
             noGood.push({ name: response[i].data.info.name, id: response[i].data.tempId, type: response[i].data.info.type })
           }
         }
-        // console.log(noGood)
         if (noGood.length > 0) {
           noGood.forEach(del => {
-            // console.log(del)
             if (del.type === "course") {
-              // console.log("GETTING TO THE REMOVEREGISTRATIONFROM CART FUNCTION")
               this.removeRegistrationFromCart(del.id);
             } else if (del.type === "item") {
               this.removeReservationFromCart(del.id);
@@ -129,10 +110,6 @@ class CheckoutForm extends Component {
           });
           Promise.all(noGood)
             .then(() => {
-              // console.log("start state tempreservations")
-              // console.log(this.props.tempRegistrations)
-              // console.log(this.props.tempReservations)
-              // console.log("end state tempreservations")
               this.props.toggleLoadingModal();
               this.setModal({
                 body:
@@ -156,14 +133,14 @@ class CheckoutForm extends Component {
                         role="button"
                       >
                         Select new date
-              </Link> &&
+                      </Link> &&
                       <Link
                         className="modal-btn-link"
                         to={{ pathname: '/courses' }}
                         role="button"
                       >
                         Select new course
-              </Link>
+                      </Link>
                       : types.includes("course")
                         ? <Link
                           className="modal-btn-link"
@@ -171,7 +148,7 @@ class CheckoutForm extends Component {
                           role="button"
                         >
                           Select new course
-              </Link>
+                      </Link>
                         : types.includes("rental")
                           ? <Link
                             className="modal-btn-link"
@@ -179,7 +156,7 @@ class CheckoutForm extends Component {
                             role="button"
                           >
                             Select new dates
-              </Link>
+                      </Link>
                           : null
                     }
                     <button
@@ -197,35 +174,6 @@ class CheckoutForm extends Component {
       })
       .catch(err => console.log(err));
   }
-
-  // async submit(ev) {
-  //   { console.log(parseFloat(this.props.total) * 100) }
-  //   let { token } = await this.props.stripe.createToken({ name: "Name" });
-  //   let response = await fetch("/charge", {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: { token: token.id, chrgAmt: parseFloat(this.props.total) * 100 }
-  //   });
-
-  //   if (response.ok) {
-  //     console.log("Purchase Complete!")
-  //     let promiseArray = [];
-  //     this.props.tempReservations.forEach(res => {
-  //       const resQuery = API.reserveRental(res);
-  //       promiseArray.push(resQuery);
-  //     });
-  //     this.props.tempRegistrations.forEach(reg => {
-  //       const regQuery = API.reserveCourse(reg._id, reg);
-  //       promiseArray.push(regQuery);
-  //     });
-  //     Promise.all(promiseArray)
-  //       .then(() => {
-  //         this.props.getUserShoppingCart();
-  //         this.props.toggleLoadingModal();
-  //         this.setState({ complete: true })
-  //       });
-  //   }
-  // }
 
   async submit(ev) {
     let { token } = await this.props.stripe.createToken({ name: this.state.cardHolderName });
@@ -300,6 +248,7 @@ class CheckoutForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <div className="checkout">
 

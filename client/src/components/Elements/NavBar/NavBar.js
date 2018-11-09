@@ -10,7 +10,6 @@ class NavBar extends React.Component {
 
   componentDidMount = () => {
     document.querySelector(".cross").style.display = 'none';
-    // document.querySelector(".menu").style.display = 'none';
     document.querySelector(".menu").style.visibility = 'none';
     document.querySelector(".menu").style.opacity = '0';
   }
@@ -24,7 +23,6 @@ class NavBar extends React.Component {
 
   crossClick = () => {
     document.querySelector(".cross").style.display = 'none';
-    // document.querySelector(".menu").style.display = 'none';
     document.querySelector(".menu").style.visibility = 'none';
     document.querySelector(".menu").style.opacity = '0';
     document.querySelector(".hamburger").style.display = '';
@@ -39,13 +37,6 @@ class NavBar extends React.Component {
   render() {
     return (
       <nav className='navbar'>
-
-        {/* <div className='brand-logo'>
-          <Link className="btn-link" to="/" role="button"><img className="logo-fmt" src="./static/assets/images/logosolid.png" /></Link>
-        </div> */}
-        {/* <div className='brand-logo'>
-          <Link className="btn-link" to="/" role="button"><img className="logo-fmt" src="./static/assets/images/logoWordScript.png" /></Link>
-        </div> */}
         <div className='brand-logo'>
           <Link className="btn-link" to="/" role="button"><img className="logo-fmt" src="./static/assets/images/logoWordHand.png" alt="" /></Link>
         </div>

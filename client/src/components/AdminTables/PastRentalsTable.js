@@ -63,6 +63,11 @@ export class PastRentalsTable extends Component {
       }
     });
   };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
   // END MODAL TOGGLE FUNCTIONS
 
   // IMAGEMODAL TOGGLE FUNCTIONS
@@ -260,11 +265,13 @@ export class PastRentalsTable extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <ImageModal
           show={this.state.imageModal.isOpen}
           toggleImageModal={this.toggleImageModal}
           body={this.state.imageModal.body}
+          outsideClick={this.outsideClick}
         />
         <LoadingModal show={this.state.loadingModalOpen} />
 

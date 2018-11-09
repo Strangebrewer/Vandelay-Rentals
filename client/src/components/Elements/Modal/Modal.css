@@ -1,6 +1,6 @@
 /* The Modal (background) */
 
-.my-modal {
+.modal {
   display: flex;
   /* this keeps the modal centered when the content (below) is set to margin: auto */
   position: fixed;
@@ -21,13 +21,13 @@
   /* Black w/ opacity */
 }
 
-.my-modal select {
+.modal select {
   width: 100%;
 }
 
 /* The Close Button */
 
-.my-modal-close {
+.modal-close {
   position: absolute;
   top: 5px;
   right: 10px;
@@ -37,15 +37,15 @@
   font-weight: bold;
 }
 
-.my-modal-close:hover, .my-modal-close:focus {
+.modal-close:hover, .modal-close:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
 }
 
-/* my-modal Header */
+/* modal Header */
 
-.my-modal-header {
+.modal-header {
   position: relative;
   height: 30px;
   background-color: transparent;
@@ -54,22 +54,22 @@
   border-top-right-radius: 10px;
 }
 
-/* my-modal Body */
+/* modal Body */
 
-.my-modal-body {
+.modal-body {
   max-width: 100%;
   margin: auto;
   padding: 10px 30px;
   z-index: 999;
 }
 
-.sub-table-container .my-modal-body h3 {
+.sub-table-container .modal-body h3 {
   margin: unset;
 }
 
-/* my-modal Footer */
+/* modal Footer */
 
-.my-modal-footer {
+.modal-footer {
   height: 30px;
   background-color: transparent;
   color: #000;
@@ -77,9 +77,9 @@
   border-bottom-right-radius: 10px;
 }
 
-/* my-modal Content */
+/* modal Content */
 
-.my-modal-content {
+.modal-content {
   max-width: 90%;
   min-width: 300px;
   position: relative;
@@ -93,47 +93,47 @@
   border-radius: 12px;
 }
 
-.my-modal-body>form>label, .my-modal-body>form>input {
+.modal-body>form>label, .modal-body>form>input {
   top: unset;
   font-size: 14px;
   color: #5264AE;
 }
 
-.my-modal-body>form>.form-select {
+.modal-body>form>.form-select {
   margin-top: 20px;
 
 }
 
-.my-modal h4 {
+.modal h4 {
   font-size: 1.1rem;
 }
 
-.my-modal h5 {
+.modal h5 {
   font-size: 1.2rem;
 }
 
-.my-modal h6 {
+.modal h6 {
   margin: 15px 0;
   font-size: 1rem;
   font-weight: bold;
   text-indent: 30px;
 }
 
-.my-modal p {
+.modal p {
   font-size: .9rem;
   margin: 5px 0;
 }
 
-.my-modal label {
+.modal label {
   margin-top: 10px;
 }
 
-.my-modal input {
+.modal input {
   margin-top: 40px;
 }
 
-.my-modal .group-select,
-.my-modal .group {
+.modal .group-select,
+.modal .group {
   margin-bottom: 10px;
 }
 
@@ -167,18 +167,18 @@
 
 
 @media (min-width: 650px) {
-  .my-modal h4 {
+  .modal h4 {
     font-size: 1.1rem;
   }  
-  .my-modal h5 {
+  .modal h5 {
     font-size: 1.2rem;
   }  
-  .my-modal h6 {
+  .modal h6 {
     margin: 15px 0;
     font-size: 1rem;
     text-indent: 30px;
   }  
-  .my-modal p {
+  .modal p {
     font-size: .9rem;
   }  
   .modal-btn-div {

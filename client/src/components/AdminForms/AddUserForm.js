@@ -28,7 +28,7 @@ export class AddUserForm extends Component {
     this.setState({
       modal: { isOpen: false }
     });
-  }
+  };
 
   setModal = (modalInput) => {
     this.setState({
@@ -38,7 +38,12 @@ export class AddUserForm extends Component {
         buttons: modalInput.buttons
       }
     });
-  }
+  };
+
+  outsideClick = event => {
+    if (event.target.className === "modal")
+      this.closeModal();
+  };
 
   handleInputChange = event => {
     const target = event.target;
@@ -123,6 +128,7 @@ export class AddUserForm extends Component {
           closeModal={this.closeModal}
           body={this.state.modal.body}
           buttons={this.state.modal.buttons}
+          outsideClick={this.outsideClick}
         />
         <form>
           <Input

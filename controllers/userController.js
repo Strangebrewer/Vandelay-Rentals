@@ -18,9 +18,7 @@ module.exports = {
   signup: function (req, res) {
     const { username, firstName, lastName, email, state, zipcode, phone } = req.body;
 
-    console.log(phone);
     const filteredPhone = phone.split("").filter(num => /^[0-9]+$/.test(num)).join("");
-    console.log("Filtered phone: " + filteredPhone);
     req.body.phone = filteredPhone;
 
     let zipTest = /^\d{5}(-\d{4})?$/.test(zipcode);
@@ -58,10 +56,6 @@ module.exports = {
             const newUser = new db.User(req.body)
             newUser.save((err, savedUser) => {
               if (err) return res.json(err)
-              console.log("User returned from login:");
-              console.log(savedUser);
-              console.log("User from req.user");
-              console.log(req.user);
 
               db.ShoppingCart.create({
                 customerId: savedUser._id
@@ -162,7 +156,6 @@ module.exports = {
 
     db.User.findOne({ username: username }, (err, user) => {
       if (err) {
-        console.log("Stupid!");
         res.json(err);
       } else {
         res.json(user);
@@ -171,8 +164,6 @@ module.exports = {
   },
 
   logout: function (req, res) {
-    console.log("Hi! Here's your user: ");
-    console.log(req.user);
     if (req.user) {
       req.session.destroy();
       res.send({ msg: 'logging out' })
@@ -182,7 +173,6 @@ module.exports = {
   },
 
   changePw: function (req, res) {
-    console.log(req.body);
     const isMatch = bcrypt.compareSync(req.body.currentPassword, req.user.password);
     if (isMatch) {
       const pw = bcrypt.hashSync(req.body.newPassword, bcrypt.genSaltSync(10), null);
@@ -194,8 +184,6 @@ module.exports = {
         }
       )
         .then(response => {
-          console.log("Check pw response:");
-          console.log(response);
           res.json(response);
         })
     } else {
@@ -204,7 +192,6 @@ module.exports = {
         { $inc: { pwChangeAttempts: 1 } }
       )
         .then(response => {
-          console.log(response);
           if (response.pwChangeAttempts === 2) {
             const pw = bcrypt.hashSync("YourF33tAr3B4ckw4rd$", bcrypt.genSaltSync(10), null);
             db.User.findOneAndUpdate(
@@ -214,9 +201,7 @@ module.exports = {
                 pwChangeAttempts: 0
               }
             )
-              .then(response => {
-                console.log("Check pw response:");
-                console.log(response);
+              .then(() => {
                 res.json({ message: "too many attempts" });
               })
           } else {

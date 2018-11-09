@@ -25,7 +25,6 @@ module.exports = {
     if (dailyRate === "$") return res.send({ message: "$ only" })
     const formatRate = dailyRate.split("").filter(char => /^[0-9.]+$/.test(char)).join("");
     req.body.dailyRate = formatRate;
-    console.log(req.body.dailyRate);
     db.Rental
       .create(req.body)
       .then(dbModel => res.json(dbModel))
@@ -82,11 +81,7 @@ module.exports = {
                 { $pull: { reservations: element._id } },
                 { multi: true }
               )
-
-              // const userResQuery = db.User.update(
-              //   { _id: element.customerId },
-              //   { $pull: { reservations: element._id } }
-              // )
+              
               queryArray.push(userResQuery);
             }
           }).then(() => {
@@ -106,8 +101,6 @@ module.exports = {
   },
 
   finishReservation: function (req, res) {
-    console.log("Here's the Reservation req.body:")
-    console.log(req.body._original);
     db.PastRental
       .create(req.body._original)
       .then(dbModel => {
@@ -142,7 +135,6 @@ module.exports = {
   },
 
   updatePastRental: function (req, res) {
-    console.log(req.body);
     db.PastRental
       .findOneAndUpdate({ _id: req.params.id }, req.body)
       .then(dbModel => res.json(dbModel))

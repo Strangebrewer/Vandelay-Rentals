@@ -13,18 +13,9 @@ module.exports = {
       .then(dbModel => res.json(dbModel))
       .catch(err => res.status(422).json(err));
   },
-  //  NOT YET BEING USED - DELETE IF UNUSED IN FINAL PRODUCT
-  // findById: function (req, res) {
-  //   db.User
-  //     .findById(req.params.id)
-  //     .populate('reservations')
-  //     .populate('registrations')
-  //     .then(dbModel => res.json(dbModel))
-  //     .catch(err => res.status(422).json(err));
-  // },
+  
   //  This function gets data from admin tables and updates the db
   update: function (req, res) {
-    console.log(req.body);
     if (req.body.phone) {
       const filteredPhone = req.body.phone.split("").filter(num => /^[0-9]+$/.test(num)).join("");
       req.body.phone = filteredPhone;
@@ -41,6 +32,7 @@ module.exports = {
       }))
       .catch(err => res.status(422).json(err));
   },
+
   remove: function (req, res) {
     db.User
       .findById({ _id: req.params.id })
