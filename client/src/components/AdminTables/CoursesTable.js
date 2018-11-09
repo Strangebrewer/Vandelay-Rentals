@@ -1,12 +1,18 @@
 import React, { Component, Fragment } from "react";
+import ReactTable from "react-table";
+import "react-table/react-table.css";
 import API from "../../utils/API";
 import Modal from "../../components/Elements/Modal";
 import LoadingModal from "../../components/Elements/LoadingModal";
-import ReactTable from "react-table";
 import { RegistrationsTable } from "./RegistrationsTable";
-import "react-table/react-table.css";
+import { AdminIcons } from "./AdminIcons";
 import "./AdminTables.css";
-import dateFns from "date-fns";
+import {
+  getNoteModal,
+  courseDeleteModal,
+  delayModal,
+} from "../../utils/Modals";
+import { parseCellData, parseRowUpdate } from "../../utils/Helpers";
 
 export class CoursesTable extends Component {
   state = {
@@ -30,9 +36,7 @@ export class CoursesTable extends Component {
   // Standard input change controller
   handleInputChange = event => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   };
 
   // MODAL TOGGLE FUNCTIONS
@@ -64,32 +68,14 @@ export class CoursesTable extends Component {
   }
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
-  }
-
-  submitNote = id => {
-    this.closeModal();
-    this.toggleLoadingModal();
-    API.adminUpdateCourse(id, { note: this.state.note })
-      .then(response => {
-        setTimeout(this.toggleLoadingModal, 500);
-        this.state.courses.forEach(pr => {
-          if (pr._id === id) pr.note = this.state.note;
-          this.setState({ runUnmount: true })
-        });
-      })
-      .catch(err => console.log(err));
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original.id
+    )
+    this.setModal(modalContent)
   }
 
   //  Get all courses from the database and set state so the table will display
@@ -98,7 +84,6 @@ export class CoursesTable extends Component {
       .then(res => {
         res.data.forEach(r => {
           r.pricePer = parseFloat(r.price.$numberDecimal);
-          // r.date = dateFns.format(r.date * 1000, "MMM Do YYYY");
           if (r.registrations.length) {
             r.openSlots = r.slots - r.registrations.length;
           } else {
@@ -114,25 +99,13 @@ export class CoursesTable extends Component {
 
   //  Course delete modal
   courseDeleteModal = row => {
-    if (row._original.registrations.length > 0) {
-      this.setModal({
-        body: <h3>You must remove all class registrations first.</h3>,
-        buttons: <button onClick={this.closeModal}>OK</button>
-      });
-    } else {
-      this.setModal({
-        body:
-          <Fragment>
-            <h4>Are you sure you want to delete {row.name}?</h4>
-            <p>(this is permenent - you cannot undo it and you will lose all data)</p>
-          </Fragment>,
-        buttons:
-          <Fragment>
-            <button onClick={this.closeModal}>Nevermind</button>
-            <button onClick={() => this.deleteCourse(row)}>Delete it</button>
-          </Fragment>
-      })
-    }
+    const modalObject = courseDeleteModal(
+      row._original.registrations.length,
+      this.closeModal,
+      row,
+      this.deleteCourse
+    )
+    this.setModal(modalObject);
   }
 
   // Course delete function
@@ -149,30 +122,12 @@ export class CoursesTable extends Component {
       .catch(err => console.log(err));
   }
 
-  noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Update Note</h3>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons: <button onClick={() => this.submitNote(_id)}>Submit</button>
-    })
-  }
-
   submitNote = id => {
     this.closeModal();
     this.toggleLoadingModal();
     API.adminUpdateCourse(id, { note: this.state.note })
-      .then(response => {
-        //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-        setTimeout(this.toggleLoadingModal, 500);
-        // success modal after the loading modal is gone.
-        setTimeout(this.setModal, 500, {
-          body: <h3>Database successfully updated</h3>,
-          buttons: <button onClick={this.closeModal}>OK</button>
-        });
+      .then(() => {
+        delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
         //  query the db and reload the table
         this.adminGetAllCourses();
       })
@@ -197,14 +152,8 @@ export class CoursesTable extends Component {
     this.toggleLoadingModal();
     const topicsArray = this.state.topics.split(", ");
     API.adminUpdateCourse(id, { topics: topicsArray })
-      .then(response => {
-        //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-        setTimeout(this.toggleLoadingModal, 500);
-        // success modal after the loading modal is gone.
-        setTimeout(this.setModal, 500, {
-          body: <h3>Database successfully updated</h3>,
-          buttons: <button onClick={this.closeModal}>OK</button>
-        });
+      .then(() => {
+        delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
         //  query the db and reload the table
         this.adminGetAllCourses();
       })
@@ -227,14 +176,8 @@ export class CoursesTable extends Component {
     this.closeModal();
     this.toggleLoadingModal();
     API.adminUpdateCourse(id, { summary: this.state.summary })
-      .then(response => {
-        //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-        setTimeout(this.toggleLoadingModal, 500);
-        // success modal after the loading modal is gone.
-        setTimeout(this.setModal, 500, {
-          body: <h3>Database successfully updated</h3>,
-          buttons: <button onClick={this.closeModal}>OK</button>
-        });
+      .then(() => {
+        delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
         //  query the db and reload the table
         this.adminGetAllCourses();
       })
@@ -257,14 +200,8 @@ export class CoursesTable extends Component {
     this.closeModal();
     this.toggleLoadingModal();
     API.adminUpdateCourse(id, { description: this.state.description })
-      .then(response => {
-        //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-        setTimeout(this.toggleLoadingModal, 500);
-        // success modal after the loading modal is gone.
-        setTimeout(this.setModal, 500, {
-          body: <h3>Database successfully updated</h3>,
-          buttons: <button onClick={this.closeModal}>OK</button>
-        });
+      .then(() => {
+        delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
         //  query the db and reload the table
         this.adminGetAllCourses();
       })
@@ -273,54 +210,19 @@ export class CoursesTable extends Component {
 
   //  Update selected Row - sends current field info to db and updates that item
   updateRow = row => {
-    const { name, pricePer, level, date, slots, _id } = row._original;
-
-    let unixDate;
-    if (typeof date === "string") unixDate = dateFns.format(date, "X");
-    else unixDate = dateFns.format(date * 1000, "X");
-
-    if (date.length < 6 || unixDate === "Invalid Date") {
-      return this.setModal({
-        body:
-          <Fragment>
-            <h4>Please enter a valid date format</h4>
-            <p>(e.g. '01/25/2016' or 'Dec 14 2012')</p>
-          </Fragment>,
-        buttons: <button onClick={this.closeModal}>OK</button>
-      })
-    }
-    //  wait until here to trigger the loading modal - after the date has been validated - otherwise, the loadingmodal must be closed again inside the "if (dateAcquired.length...)" block, and the timing is such that the loading modal just ends up staying open.
-    this.toggleLoadingModal();
-
-    // if pricePer exists (it should, but to avoid an error, checking first...) and it hasn't been changed, it will be a number type because the formatting occurs in the renderEditablePrice function (the actual value remains a number type until it is changed) and so the .split method doesn't exist (that's a string method)
-    let newPrice;
-    if (pricePer) {
-      if (typeof pricePer === "string") newPrice = pricePer.split("").filter(x => x !== "$").join("");
-      else newPrice = pricePer;
-    }
-
-    let newLevel;
-    if (this.state.level) newLevel = this.state.level;
-    else newLevel = level;
-
-    const updateObject = {
-      name: name,
-      date: unixDate,
-      level: newLevel,
-      price: newPrice,
-      slots: slots
-    };
+    const { _id } = row._original;
+    const updateObject = parseRowUpdate(
+      row._original,
+      this.closeModal,
+      this.setModal,
+      this.toggleLoadingModal,
+      this.state.level
+    );
 
     API.adminUpdateCourse(_id, updateObject)
       .then(response => {
         if (response.status === 200) {
-          //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-          setTimeout(this.toggleLoadingModal, 500);
-          // success modal after the loading modal is gone.
-          setTimeout(this.setModal, 500, {
-            body: <h3>Database successfully updated</h3>,
-            buttons: <button onClick={this.closeModal}>OK</button>
-          });
+          delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
           //  query the db and reload the table
           this.adminGetAllCourses();
         }
@@ -329,61 +231,10 @@ export class CoursesTable extends Component {
   };
 
   // editable react table function
-  renderEditablePrice = cellInfo => {
-    return (
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={e => {
-          const courses = [...this.state.courses];
-          courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-          this.setState({ courses: courses });
-        }}
-        dangerouslySetInnerHTML={{
-          __html: (
-            //  When you enter a new price that includes anything other than digits (e.g. a dollar sign)
-            //  It renders as 'NaN', which shows in the cell for just a second before the change
-            //  So, if the cell includes 'NaN', just render what's already in the cell
-            //  Otherwise, display the formatted price.
-            `$${parseFloat(this.state.courses[cellInfo.index][cellInfo.column.id]).toFixed(2)}`.includes('NaN')
-              ?
-              this.state.courses[cellInfo.index][cellInfo.column.id]
-              :
-              `$${parseFloat(this.state.courses[cellInfo.index][cellInfo.column.id]).toFixed(2)}`
-          )
-        }}
-      />
-    );
-  };
-
-  // editable react table for the date - allows for date formatting within the cell
-  renderEditableDate = cellInfo => {
-    return (
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={e => {
-          const courses = [...this.state.courses];
-          courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-          this.setState({ courses: courses });
-        }}
-        dangerouslySetInnerHTML={{
-          //  When you enter a new date that's not in unix time, the below format renders it as "Invalid Date"
-          //  As a result, in the split second before the database updates, the field says "Invalid Date"
-          //  So, if invalid date, just display what's being typed in. Otherwise, display the formatted version.
-          __html: (
-            dateFns.format(this.state.courses[cellInfo.index][cellInfo.column.id] * 1000, 'MMM Do YYYY') === "Invalid Date"
-              ?
-              this.state.courses[cellInfo.index][cellInfo.column.id]
-              :
-              dateFns.format(this.state.courses[cellInfo.index][cellInfo.column.id] * 1000, 'MMM Do YYYY'))
-        }}
-      />
-    );
-  };
-
-  // editable react table function
   renderEditable = cellInfo => {
+    const id = cellInfo.column.id;
+    const index = cellInfo.index;
+    const cellData = parseCellData(id, index, this.state.courses);
     return (
       <div
         contentEditable
@@ -393,9 +244,7 @@ export class CoursesTable extends Component {
           courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
           this.setState({ courses: courses });
         }}
-        dangerouslySetInnerHTML={{
-          __html: this.state.courses[cellInfo.index][cellInfo.column.id]
-        }}
+        dangerouslySetInnerHTML={cellData}
       />
     );
   };
@@ -448,20 +297,13 @@ export class CoursesTable extends Component {
                     width: 110,
                     Cell: row => {
                       return (
-                        <div className="table-icon-div">
-                          <div className="fa-sync-div table-icon-inner-div">
-                            <i onClick={() => this.updateRow(row.row)} className="table-icon fas fa-sync fa-lg"></i>
-                            <span className="fa-sync-tooltip table-tooltip">upload changes</span>
-                          </div>
-                          <div className="fa-trash-alt-div table-icon-inner-div">
-                            <i onClick={() => this.courseDeleteModal(row.row)} className="table-icon fas fa-trash-alt fa-lg"></i>
-                            <span className="fa-trash-alt-tooltip table-tooltip">delete class</span>
-                          </div>
-                          <div className="fa-sticky-note-div table-icon-inner-div">
-                            <i onClick={() => this.noteModal(row.row)} className="table-icon far fa-sticky-note fa-lg"></i>
-                            <span className="fa-sticky-note-tooltip table-tooltip">see/edit notes</span>
-                          </div>
-                        </div>
+                        <AdminIcons
+                          updateRow={this.updateRow}
+                          deleteModal={this.courseDeleteModal}
+                          noteModal={this.noteModal}
+                          row={row.row}
+                          tooltip="class"
+                        />
                       )
                     }
                   }
@@ -490,7 +332,6 @@ export class CoursesTable extends Component {
                             <span className="fa-book-open-tooltip table-tooltip">see/edit description</span>
                           </div>
                         </div>
-
                       )
                     }
                   }
@@ -507,7 +348,7 @@ export class CoursesTable extends Component {
                   {
                     Header: "Date",
                     accessor: "date",
-                    Cell: this.renderEditableDate
+                    Cell: this.renderEditable
                   },
                   {
                     Header: "Difficulty",
@@ -536,7 +377,7 @@ export class CoursesTable extends Component {
                     Header: "Price",
                     accessor: "pricePer",
                     width: 80,
-                    Cell: this.renderEditablePrice
+                    Cell: this.renderEditable
                   },
                   {
                     Header: "Slots",

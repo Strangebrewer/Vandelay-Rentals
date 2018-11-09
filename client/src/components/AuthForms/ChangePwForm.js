@@ -46,13 +46,11 @@ export class ChangePwForm extends Component {
 
   handleFormSubmit = event => {
     event.preventDefault();
-    console.log("Password:" + this.state.currentPassword)
     API.changePassword({
       currentPassword: this.state.currentPassword,
       newPassword: this.state.newPassword
     })
       .then(res => {
-        console.log(res);
         if (res.data.message === "incorrect") {
           this.setModal({
             body: <h4>Current password does not match our records.</h4>,

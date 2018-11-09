@@ -136,6 +136,7 @@ export class AddSaleItemForm extends Component {
           buttons={this.state.modal.buttons}
           outsideClick={this.outsideClick}
         />
+        <h2>New Sale Item</h2>
         <form>
           <Input
             value={this.state.name}

@@ -3,7 +3,7 @@ import Header from "../../components/Elements/Header";
 import Modal from "../../components/Elements/Modal";
 import LoadingModal from "../../components/Elements/LoadingModal";
 import NavBar from "../../components/Elements/NavBar";
-import { BrandonTestTable, RentalsTable, CoursesTable, SalesTable, UsersTable, TestTable } from "../../components/AdminTables";
+import { RentalsTable, CoursesTable, SalesTable, UsersTable, TestTable } from "../../components/AdminTables";
 import { AdminForms } from "../../components/AdminForms";
 import "../Admin/Admin.css";
 
@@ -208,13 +208,6 @@ class TestAdmin extends Component {
               updateUser={this.props.updateUser}
               registrations="narf"
               toggleTest={this.toggleTest}
-              categories={this.props.categories}
-            />
-          ) : null}
-
-          {this.state.brandonTest ? (
-            <BrandonTestTable
-              toggleBrandonTest={this.toggleBrandonTest}
               categories={this.props.categories}
             />
           ) : null}

@@ -113,40 +113,25 @@ class App extends Component {
         if (res.data.admin) {
           isAdmin = true;
         }
-        API.getAllCategories()
-          .then(categories => {
-            this.setState({
-              loggedIn: true,
-              username: res.data.username,
-              firstName: res.data.firstName,
-              lastName: res.data.lastName,
-              admin: res.data.admin,
-              dev: res.data.dev,
-              categories: categories.data
-            });
-          })
+        this.setState({
+          loggedIn: true,
+          username: res.data.username,
+          firstName: res.data.firstName,
+          lastName: res.data.lastName,
+          admin: res.data.admin,
+          dev: res.data.dev,
+        })
       } else {
-        API.getAllCategories()
-          .then(categories => {
-            this.setState({
-              loggedIn: false,
-              username: null,
-              firstName: null,
-              admin: false,
-              dev: false,
-              categories: categories.data
-            });
-          })
+        this.setState({
+          loggedIn: false,
+          username: null,
+          firstName: null,
+          admin: false,
+          dev: false
+        })
       }
     });
   };
-
-  setCategories = () => {
-    API.getAllCategories()
-      .then(categories => {
-        this.setState({ categories: categories.data });
-      })
-  }
 
   badLogout = () => {
     API.logout()
@@ -352,8 +337,6 @@ class App extends Component {
               admin: this.state.admin,
               dev: this.state.dev,
               logout: this.logout,
-              categories: this.state.categories,
-              setCategories: this.setCategories
             })}
             />
             <PrivateRoute path="/test" component={AddPropsToRoute(Test, {

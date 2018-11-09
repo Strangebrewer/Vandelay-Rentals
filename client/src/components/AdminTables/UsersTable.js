@@ -1,14 +1,20 @@
 import React, { Component, Fragment } from "react";
-import { Input } from "../Elements/Form";
+import ReactTable from "react-table";
+import "react-table/react-table.css";
 import API from "../../utils/API";
 import Modal from "../../components/Elements/Modal";
 import LoadingModal from "../../components/Elements/LoadingModal";
-import ReactTable from "react-table";
-import "react-table/react-table.css";
 import "./AdminTables.css";
 import { ReservationsTable } from './ReservationsTable';
 import { RegistrationsTable } from './RegistrationsTable';
 import { PastRentalsTable } from './PastRentalsTable';
+import { parseCellData, parseRowUpdate } from "../../utils/Helpers";
+import {
+  getNoteModal,
+  changePasswordModal,
+  userRemoveModal,
+  delayModal,
+} from "../../utils/Modals";
 
 // export class UsersTable extends Component {
 export class UsersTable extends Component {
@@ -78,19 +84,12 @@ export class UsersTable extends Component {
   };
 
   changePwModal = row => {
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Change User Password</h3>
-          <Input
-            name="password"
-            onChange={this.handleInputChange}
-            type="text"
-            label="Password:"
-          />
-        </Fragment>,
-      buttons: <button onClick={() => this.handlePasswordFormSubmit(row)}>Submit</button>
-    })
+    const modalObject = changePasswordModal(
+      row,
+      this.handleInputChange,
+      this.handlePasswordFormSubmit
+    );
+    this.setModal(modalObject);
   }
 
   handlePasswordFormSubmit = row => {
@@ -119,42 +118,14 @@ export class UsersTable extends Component {
   }
 
   userDeleteModal = row => {
-    const { registrations, reservations, pastRentals } = row._original;
-    if (pastRentals.length > 0) {
-      this.setModal({
-        body:
-        <Fragment>
-          <h4>Customers with Past Rental records cannot be deleted.</h4>
-          <p>Would you like to deactivate the account or ban the customer?</p>
-        </Fragment>,
-        buttons:
-        <Fragment>
-          <button onClick={this.closeModal}>Nevermind</button>
-          <button onClick={() => this.deactivateUser(row)}>Deactivate</button>
-          <button onClick={() => this.banUser(row)}>Ban User</button>
-        </Fragment>
-      })
-    } else if (registrations.length > 0 || reservations.length > 0) {
-      this.setModal({
-        body: <h3>You must remove all reservations and class registrations for this user before you can delete them.</h3>
-      })
-    } else {
-      this.setModal({
-        body:
-          <Fragment>
-            <h4>Are you sure you want to delete {row.firstName} {row.lastName}?</h4>
-            <p>(this is permanent - you cannot undo it and you will lose all data)</p>
-            <h4>Would you rather deactivate the account (or -gasp!- ban the user) and keep the data?</h4>
-          </Fragment>,
-        buttons:
-          <Fragment>
-            <button onClick={this.closeModal}>Nevermind</button>
-            <button onClick={() => this.deactivateUser(row)}>Deactivate</button>
-            <button onClick={() => this.banUser(row)}>Ban User</button>
-            <button onClick={() => this.deleteUser(row)}>Delete</button>
-          </Fragment>
-      })
-    }
+    const modalObject = userRemoveModal(
+      row._original,
+      this.closeModal,
+      this.deactivateUser,
+      this.banUser,
+      this.deleteUser
+    );
+    this.setModal(modalObject);
   }
 
   deactivateUser = row => {
@@ -201,32 +172,22 @@ export class UsersTable extends Component {
   }
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original._id
+    )
+    this.setModal(modalContent)
   }
 
   submitNote = id => {
     this.closeModal();
     this.toggleLoadingModal();
     API.adminUpdateUser(id, { note: this.state.note })
-      .then(response => {
-        //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-        setTimeout(this.toggleLoadingModal, 500);
-        // success modal after the loading modal is gone.
-        setTimeout(this.setModal, 500, {
-          body: <h3>Database successfully updated</h3>,
-          buttons: <button onClick={this.closeModal}>OK</button>
-        });
+      .then(() => {
+        delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
         //  query the db and reload the table
         this.adminGetAllUsers();
       })
@@ -234,32 +195,20 @@ export class UsersTable extends Component {
   }
 
   updateRow = row => {
-    this.toggleLoadingModal();
-    const { city, admin, email, firstName, lastName, phone, standing, state, street, username, zipcode, _id } = row._original;
+    const { _id } = row._original;
+    const updateObject = parseRowUpdate(
+      row._original,
+      this.closeModal,
+      this.setModal,
+      this.toggleLoadingModal,
+      null,
+      null,
+      null,
+      null,
+      null,
+      this.state.standing
+    )
 
-    let newStanding;
-    if (this.state.standing) newStanding = this.state.standing;
-    else newStanding = standing;
-
-    let adminStr;
-    if (typeof admin === 'string' || admin instanceof String) adminStr = admin.toLowerCase();
-    else if (admin === false) adminStr = "false";
-    else if (admin === true) adminStr = "true";
-
-    const updateObject = {
-      admin: adminStr,
-      city: city,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      phone: phone,
-      standing: newStanding,
-      state: state,
-      street: street,
-      username: username,
-      zipcode: zipcode
-    }
-    
     API.adminUpdateUser(_id, updateObject)
       .then(response => {
         if (response.status === 200) {
@@ -275,13 +224,7 @@ export class UsersTable extends Component {
               }
             });
           } else {
-            //  keep the loading modal up for at least .5 seconds, otherwise it's just a screen flash and looks like a glitch.
-            setTimeout(this.toggleLoadingModal, 500);
-            // success modal after the loading modal is gone.
-            setTimeout(this.setModal, 500, {
-              body: <h4>Database successfully updated</h4>,
-              buttons: <button onClick={this.closeModal}>OK</button>
-            });
+            delayModal(this.toggleLoadingModal, this.setModal, this.closeModal);
             this.adminGetAllUsers();
           }
         } else {
@@ -301,6 +244,9 @@ export class UsersTable extends Component {
   }
 
   renderEditable = cellInfo => {
+    const id = cellInfo.column.id;
+    const index = cellInfo.index;
+    const cellData = parseCellData(id, index, this.state.users);
     return (
       <div
         contentEditable
@@ -310,27 +256,7 @@ export class UsersTable extends Component {
           users[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
           this.setState({ users });
         }}
-        dangerouslySetInnerHTML={{
-          __html: this.state.users[cellInfo.index][cellInfo.column.id]
-        }}
-      />
-    );
-  }
-
-  renderEditablePhone = cellInfo => {
-    const phone = this.state.users[cellInfo.index][cellInfo.column.id];
-    return (
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={e => {
-          const users = [...this.state.users];
-          users[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-          this.setState({ users });
-        }}
-        dangerouslySetInnerHTML={{
-          __html: `${phone.slice(0, 3)}-${phone.slice(3, 6)}-${phone.slice(6, 10)}`
-        }}
+        dangerouslySetInnerHTML={cellData}
       />
     );
   }
@@ -350,7 +276,6 @@ export class UsersTable extends Component {
 
         <div className="main-table-container user-table">
 
-          {/* <h2>All Users</h2> */}
           <div className="table-title-div">
             <h2>Users Table <button onClick={this.props.toggleUsers}>hide table</button></h2>
           </div>
@@ -511,7 +436,7 @@ export class UsersTable extends Component {
                   {
                     Header: "Phone",
                     accessor: "phone",
-                    Cell: this.renderEditablePhone
+                    Cell: this.renderEditable
                   }
                 ]
               }

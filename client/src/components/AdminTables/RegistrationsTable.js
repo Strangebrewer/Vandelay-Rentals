@@ -1,11 +1,13 @@
 import React, { Component, Fragment } from "react";
 import ReactTable from "react-table";
+import "react-table/react-table.css";
+import dateFns from "date-fns";
 import Modal from '../../components/Elements/Modal';
 import LoadingModal from "../../components/Elements/LoadingModal";
 import API from "../../utils/API";
-import dateFns from "date-fns";
-import "react-table/react-table.css";
 import "./AdminTables.css";
+import { parseCellData, parseRowUpdate } from "../../utils/Helpers";
+import { getNoteModal, cancelRegistrationModal } from "../../utils/Modals";
 
 export class RegistrationsTable extends Component {
   state = {
@@ -69,21 +71,12 @@ export class RegistrationsTable extends Component {
   }
 
   cancelRegistrationModal = row => {
-    if (row.hasPaid === "True") {
-      this.setModal({
-        body: <h4>You must refund the customer's money before you can remove their class registration.</h4>,
-        buttons: <button onClick={this.closeModal}>OK</button>
-      })
-    } else {
-      this.setModal({
-        body: <h4>Are you sure you want to remove this customer's class registration?</h4>,
-        buttons:
-          <Fragment>
-            <button onClick={this.closeModal}>Nevermind</button>
-            <button onClick={() => this.cancelRegistration(row._original)}>Yes, Remove It</button>
-          </Fragment>
-      })
-    }
+    const modalObject = cancelRegistrationModal(
+      row,
+      this.closeModal,
+      this.cancelRegistration
+    )
+    this.setModal(modalObject);
   }
 
   //  Cancel function works - Deletes registration and removes the reference from User and Course
@@ -135,18 +128,14 @@ export class RegistrationsTable extends Component {
   }
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original._id
+    )
+    this.setModal(modalContent)
   }
 
   submitNote = id => {
@@ -203,11 +192,12 @@ export class RegistrationsTable extends Component {
                     return (
                       <div className="table-icon-div">
                         <div className="fa-trash-alt-div table-icon-inner-div">
-                          <i onClick={() => this.cancelRegistrationModal(row.row)} className={row.row.hasPaid === "True" ?
-                            "table-icon fas fa-trash-alt fa-lg table-icon-disabled"
-                            :
-                            "table-icon fas fa-trash-alt fa-lg"
-                          }></i>
+                          <i
+                            onClick={() => this.cancelRegistrationModal(row.row)}
+                            className={row.row.hasPaid === "True"
+                              ? "table-icon fas fa-trash-alt fa-lg table-icon-disabled"
+                              : "table-icon fas fa-trash-alt fa-lg"
+                            } />
                           <span className="fa-trash-alt-tooltip table-tooltip">cancel registration</span>
                         </div>
                         <div className="fa-dollar-sign-div table-icon-inner-div">

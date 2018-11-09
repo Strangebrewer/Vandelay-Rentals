@@ -1,11 +1,16 @@
 import React, { Component, Fragment } from "react";
 import ReactTable from "react-table";
+import "react-table/react-table.css";
+import dateFns from "date-fns";
 import Modal from "../../components/Elements/Modal";
 import LoadingModal from "../../components/Elements/LoadingModal";
 import API from "../../utils/API";
-import "react-table/react-table.css";
 import "./AdminTables.css";
-import dateFns from "date-fns";
+import { parseCellData, parseRowUpdate } from "../../utils/Helpers";
+import {
+  getNoteModal,
+  cancelReservationModal,
+} from "../../utils/Modals";
 
 export class ReservationsTable extends Component {
   state = {
@@ -72,21 +77,8 @@ export class ReservationsTable extends Component {
   }
 
   cancelReservationModal = row => {
-    if (row.hasPaid === "True") {
-      this.setModal({
-        body: <h4>You must refund the customer's money before you can cancel this reservation.</h4>,
-        buttons: <button onClick={this.closeModal}>OK</button>
-      })
-    } else {
-      this.setModal({
-        body: <h4>Are you sure you want to cancel the reservation?</h4>,
-        buttons:
-          <Fragment>
-            <button onClick={this.closeModal}>Nevermind</button>
-            <button onClick={() => this.cancelReservation(row._original)}>Yes, Cancel It</button>
-          </Fragment>
-      })
-    }
+    const modalObject = cancelReservationModal(row, this.closeModal, this.cancelReservation);
+    this.setModal(modalObject);
   }
 
   //  Cancel function works - Deletes reservation and removes the reference from User and Rental
@@ -164,18 +156,14 @@ export class ReservationsTable extends Component {
   }
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original._id
+    )
+    this.setModal(modalContent)
   }
 
   submitNote = id => {
@@ -234,10 +222,9 @@ export class ReservationsTable extends Component {
                     return (
                       <div className="table-icon-div">
                         <div className="fa-trash-alt-div table-icon-inner-div">
-                          <i onClick={() => this.cancelReservationModal(row.row)} className={row.row.hasPaid === "True" ?
-                            "table-icon fas fa-trash-alt fa-lg table-icon-disabled"
-                            :
-                            "table-icon fas fa-trash-alt fa-lg"
+                          <i onClick={() => this.cancelReservationModal(row.row)} className={row.row.hasPaid === "True"
+                            ? "table-icon fas fa-trash-alt fa-lg table-icon-disabled"
+                            : "table-icon fas fa-trash-alt fa-lg"
                           }></i>
                           <span className="fa-trash-alt-tooltip table-tooltip">cancel reservation</span>
                         </div>
@@ -245,8 +232,8 @@ export class ReservationsTable extends Component {
                           <i onClick={() => this.toggleReservationPaid(row.row)} className="table-icon fas fa-dollar-sign fa-lg"></i>
                           <span className="fa-dollar-sign-tooltip table-tooltip">record payment</span>
                         </div>
-                        {row.row.hasPaid === "True" ?
-                          (
+                        {row.row.hasPaid === "True"
+                          ? (
                             <div className="fa-check-circle-div table-icon-inner-div">
                               <i onClick={() => this.recordRentalReturn(row.row)} className="table-icon far fa-check-circle fa-lg"></i>
                               <span className="fa-check-circle-tooltip table-tooltip">record turnin</span>

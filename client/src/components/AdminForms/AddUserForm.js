@@ -77,17 +77,20 @@ export class AddUserForm extends Component {
           switch (res.data.error) {
             case "username taken":
               this.setModal({
-                body: <h4>That username is already taken</h4>
+                body: <h4>That username is already taken</h4>,
+                buttons: <button onClick={this.closeModal}>OK</button>
               });
               break;
             case "email taken":
               this.setModal({
-                body: <h4>That email already exists in our database</h4>
+                body: <h4>That email already exists in our database</h4>,
+                buttons: <button onClick={this.closeModal}>OK</button>
               });
               break;
             default:
               this.setModal({
-                body: <h4>Something went wrong - please try again</h4>
+                body: <h4>Something went wrong - please try again</h4>,
+                buttons: <button onClick={this.closeModal}>OK</button>
               });
           }
         }
@@ -130,6 +133,7 @@ export class AddUserForm extends Component {
           buttons={this.state.modal.buttons}
           outsideClick={this.outsideClick}
         />
+        <h2>New User</h2>
         <form>
           <Input
             value={this.state.username}

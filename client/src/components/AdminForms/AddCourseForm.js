@@ -123,6 +123,7 @@ export class AddCourseForm extends Component {
           buttons={this.state.modal.buttons}
           outsideClick={this.outsideClick}
         />
+        <h2>New Course</h2>
         <form>
           <Input
             value={this.state.name}

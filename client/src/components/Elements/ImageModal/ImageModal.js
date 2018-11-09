@@ -1,24 +1,23 @@
 import React, { Component } from "react";
-import ImageModalContent from "./ImageModalContent";
 import "./ImageModal.css";
 
-class ImageModal extends Component {
-
-  render() {
-    if(!this.props.show) {
-      return null;
-    }
-    return (
-      <div id="image-modal" className="image-modal">
-        <ImageModalContent
-          body={this.props.body}
-          buttons={this.props.buttons}
-          toggleImageModal={this.props.toggleImageModal}
-        />
-      </div>
-    )
-  }
-
-}
+const ImageModal = props => (
+  <React.Fragment>
+    {props.show
+      ? (
+        <div id="image-modal" className="image-modal" onClick={props.outsideClick}>
+          <div className="image-modal-content">
+            <div className="image-modal-header">
+              <span className="image-modal-close" onClick={props.toggleImageModal}>&times;</span>
+            </div>
+            <div className="image-modal-body">
+              {props.body}
+            </div>
+            <div className="image-modal-footer"></div>
+          </div>
+        </div>
+      ) : null}
+  </React.Fragment>
+)
 
 export default ImageModal;

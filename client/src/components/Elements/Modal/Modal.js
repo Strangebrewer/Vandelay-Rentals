@@ -1,25 +1,6 @@
 import React from "react";
 import "./Modal.css";
 
-// class Modal extends Component {
-
-//   render() {
-//     if (!this.props.show) {
-//       return null;
-//     }
-//     return (
-//       <div id="my-modal" className="my-modal">
-//         <ModalContent
-//           body={this.props.body}
-//           buttons={this.props.buttons}
-//           closeModal={this.props.closeModal}
-//         />
-//       </div>
-//     )
-//   }
-
-// }
-
 export const Modal = props => (
   <React.Fragment>
     {props.show
@@ -36,7 +17,7 @@ export const Modal = props => (
               </div>
             </div>
           </div>
-        <div className="modal-footer" />
+          <div className="modal-footer" />
         </div>
       )
       : null}

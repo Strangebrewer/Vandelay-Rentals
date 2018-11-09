@@ -1,12 +1,14 @@
 import React, { Component, Fragment } from "react";
+import ReactTable from "react-table";
+import "react-table/react-table.css";
+import dateFns from "date-fns";
 import API from "../../utils/API";
 import Modal from "../../components/Elements/Modal";
 import LoadingModal from "../../components/Elements/LoadingModal";
-import ReactTable from "react-table";
 import { RegistrationsTable } from "./RegistrationsTable";
-import "react-table/react-table.css";
 import "./AdminTables.css";
-import dateFns from "date-fns";
+import { parseCellData, parseRowUpdate } from "../../utils/Helpers";
+import { getNoteModal } from "../../utils/Modals";
 
 export class TestTable extends Component {
   state = {
@@ -64,19 +66,14 @@ export class TestTable extends Component {
   }
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    console.log(row);
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original._id
+    )
+    this.setModal(modalContent)
   }
 
   submitNote = id => {
@@ -284,31 +281,14 @@ export class TestTable extends Component {
 
   //  Update selected Row - sends current field info to db and updates that item
   updateRow = row => {
-    this.toggleLoadingModal()
-    const { name, pricePer, level, date, slots, _id } = row._original;
-
-    let unixDate;
-    if (typeof date === "string") unixDate = dateFns.format(date, "X");
-    else unixDate = dateFns.format(date * 1000, "X");
-
-    // if pricePer exists (it should, but to avoid an error, checking first...) and it hasn't been changed, it will be a number type because the formatting occurs in the renderEditablePrice function (the actual value remains a number type until it is changed) and so the .split method doesn't exist (that's a string method)
-    let newPrice;
-    if (pricePer) {
-      if (typeof pricePer === "string") newPrice = pricePer.split("").filter(x => x !== "$").join("");
-      else newPrice = pricePer;
-    }
-
-    let newLevel;
-    if (this.state.level) newLevel = this.state.level;
-    else newLevel = level;
-
-    const updateObject = {
-      name: name,
-      date: unixDate,
-      level: newLevel,
-      price: newPrice,
-      slots: slots
-    };
+    const { _id } = row._original;
+    const updateObject = parseRowUpdate(
+      row._original,
+      this.closeModal,
+      this.setModal,
+      this.toggleLoadingModal,
+      this.state.level
+    );
 
     API.adminUpdateCourse(_id, updateObject)
       .then(response => {
@@ -328,61 +308,10 @@ export class TestTable extends Component {
   };
 
   // editable react table function
-  renderEditablePrice = cellInfo => {
-    return (
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={e => {
-          const courses = [...this.state.courses];
-          courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-          this.setState({ courses: courses });
-        }}
-        dangerouslySetInnerHTML={{
-          __html: (
-            //  When you enter a new price that includes anything other than digits (e.g. a dollar sign)
-            //  It renders as 'NaN', which shows in the cell for just a second before the change
-            //  So, if the cell includes 'NaN', just render what's already in the cell
-            //  Otherwise, display the formatted price.
-            `$${parseFloat(this.state.courses[cellInfo.index][cellInfo.column.id]).toFixed(2)}`.includes('NaN')
-              ?
-              this.state.courses[cellInfo.index][cellInfo.column.id]
-              :
-              `$${parseFloat(this.state.courses[cellInfo.index][cellInfo.column.id]).toFixed(2)}`
-          )
-        }}
-      />
-    );
-  };
-
-  // editable react table for the date - allows for date formatting within the cell
-  renderEditableDate = cellInfo => {
-    return (
-      <div
-        contentEditable
-        suppressContentEditableWarning
-        onBlur={e => {
-          const courses = [...this.state.courses];
-          courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
-          this.setState({ courses: courses });
-        }}
-        dangerouslySetInnerHTML={{
-          //  When you enter a new date that's not in unix time, the below format renders it as "Invalid Date"
-          //  As a result, in the split second before the database updates, the field says "Invalid Date"
-          //  So, if invalid date, just display what's being typed in. Otherwise, display the formatted version.
-          __html: (
-            dateFns.format(this.state.courses[cellInfo.index][cellInfo.column.id] * 1000, 'MMM Do YYYY') === "Invalid Date"
-              ?
-              this.state.courses[cellInfo.index][cellInfo.column.id]
-              :
-              dateFns.format(this.state.courses[cellInfo.index][cellInfo.column.id] * 1000, 'MMM Do YYYY'))
-        }}
-      />
-    );
-  };
-
-  // editable react table function
   renderEditable = cellInfo => {
+    const id = cellInfo.column.id;
+    const index = cellInfo.index;
+    const cellData = parseCellData(id, index, this.state.courses);
     return (
       <div
         contentEditable
@@ -392,9 +321,7 @@ export class TestTable extends Component {
           courses[cellInfo.index][cellInfo.column.id] = e.target.innerHTML;
           this.setState({ courses: courses });
         }}
-        dangerouslySetInnerHTML={{
-          __html: this.state.courses[cellInfo.index][cellInfo.column.id]
-        }}
+        dangerouslySetInnerHTML={cellData}
       />
     );
   };

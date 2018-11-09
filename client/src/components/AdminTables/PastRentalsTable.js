@@ -1,13 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Input } from '../Elements/Form';
 import ReactTable from 'react-table';
+import 'react-table/react-table.css';
+import dateFns from 'date-fns';
 import Modal from '../../components/Elements/Modal';
 import LoadingModal from '../../components/Elements/LoadingModal';
 import ImageModal from '../../components/Elements/ImageModal';
+import { AdminImageIcons } from "./AdminImageIcons";
 import API from "../../utils/API";
-import 'react-table/react-table.css';
 import './AdminTables.css';
-import dateFns from 'date-fns';
+import {
+  getNoteModal,
+  imageUploadModal,
+  loadingModal,
+  displayImagesModal,
+} from "../../utils/Modals";
 
 export class PastRentalsTable extends Component {
   state = {
@@ -42,9 +48,7 @@ export class PastRentalsTable extends Component {
   // Standard input change controller
   handleInputChange = event => {
     const { name, value } = event.target;
-    this.setState({
-      [name]: value
-    });
+    this.setState({ [name]: value });
   };
 
   // MODAL TOGGLE FUNCTIONS
@@ -95,18 +99,14 @@ export class PastRentalsTable extends Component {
   };
 
   noteModal = row => {
-    const { _id, note } = row._original;
-    this.setModal({
-      body:
-        <Fragment>
-          <textarea name="note" onChange={this.handleInputChange} rows="10" cols="80" defaultValue={note}></textarea>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.submitNote(_id)}>Submit</button>
-          <button onClick={this.closeModal}>Nevermind</button>
-        </Fragment>
-    })
+    const modalContent = getNoteModal(
+      this.handleInputChange,
+      this.submitNote,
+      this.closeModal,
+      row._original.note,
+      row._original._id
+    )
+    this.setModal(modalContent)
   }
 
   submitNote = id => {
@@ -126,26 +126,13 @@ export class PastRentalsTable extends Component {
   //  IMAGE CRUD OPERATIONS FUNCTIONS
   // Gets the modal with the image upload form
   getImageUploadModal = row => {
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Upload An Image</h3>
-          {/* form encType must be set this way to take in a file */}
-          <form encType="multipart/form-data">
-            <Input
-              type="file"
-              name="file"
-              onChange={this.fileSelectedHandler}
-            />
-          </form>
-        </Fragment>,
-      buttons:
-        <Fragment>
-          <button onClick={() => this.handleImageUpload(row)}>Submit</button>
-          <button onClick={this.closeModal}>I'm done</button>
-        </Fragment>
-
-    });
+    const modalObject = imageUploadModal(
+      this.fileSelectedHandler,
+      this.handleImageUpload,
+      row,
+      this.closeModal
+    );
+    this.setModal(modalObject);
   };
 
   // the image chosen in the modal form is pushed into state (similar to handleInputChange function)
@@ -158,17 +145,7 @@ export class PastRentalsTable extends Component {
 
   //  When the submit button on the image upload modal is pressed, the image is uploaded into the db
   handleImageUpload = row => {
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Loading...</h3>
-          <img
-            style={{ width: '50px', display: 'block', margin: '50px auto' }}
-            src="./../../../loading.gif"
-            alt="spinning gears"
-          />
-        </Fragment>
-    });
+    this.setModal(loadingModal());
 
     const { _id } = row._original;
     const fd = new FormData();
@@ -176,9 +153,7 @@ export class PastRentalsTable extends Component {
       fd.append('file', this.state.selectedFile, this.state.selectedFile.name);
       API.uploadPastRentalImage(_id, fd)
         .then(() => {
-          this.setState({
-            selectedFile: null
-          })
+          this.setState({ selectedFile: null })
           this.closeModal();
           this.getImageUploadModal(row);
         });
@@ -192,17 +167,7 @@ export class PastRentalsTable extends Component {
 
   // Gets image names from the db so they can be put into 'img' elements to be streamed for display
   getImageNames = row => {
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Loading...</h3>
-          <img
-            style={{ width: '50px', display: 'block', margin: '50px auto' }}
-            src="./../../../loading.gif"
-            alt="spinning gears"
-          />
-        </Fragment>
-    });
+    this.setModal(loadingModal());
     const { _id } = row._original;
     API.getPastRentalImageNames(_id)
       .then(res => {
@@ -220,33 +185,13 @@ export class PastRentalsTable extends Component {
 
   // Once image names have been retrieved, they are placed into img tags for display inside a modal
   getImageModal = (images, row) => {
-    this.setImageModal({
-      body:
-        <Fragment>
-          {images.map(image => (
-            <div key={image._id} className="rental-img-div">
-              <p>Uploaded {dateFns.format(image.uploadDate, 'MMM Do YYYY hh:mm a')} </p>
-              <img className="rental-img" src={`file/image/past/${image.filename}`} alt="rental condition" />
-              <button onClick={() => this.deleteImage(image._id, row)}>Delete</button>
-            </div>
-          ))}
-        </Fragment>
-    });
+    const modalObject = displayImagesModal(images, row, this.deleteImage);
+    this.setImageModal(modalObject);
   };
 
   // Deletes an image, then closes the modal so when getImageNames toggles the modal, it will reopen it
   deleteImage = (image, row) => {
-    this.setModal({
-      body:
-        <Fragment>
-          <h3>Loading...</h3>
-          <img
-            style={{ width: '50px', display: 'block', margin: '50px auto' }}
-            src="./../../../loading.gif"
-            alt="spinning gears"
-          />
-        </Fragment>
-    });
+    this.setModal(loadingModal());
     const { _id } = row._original;
     API.deletePastRentalImage(image, _id).then(res => {
       this.toggleImageModal();
@@ -303,16 +248,11 @@ export class PastRentalsTable extends Component {
                   id: 'images',
                   Cell: row => {
                     return (
-                      <div className="table-icon-div">
-                        <div className="fa-upload-div table-icon-inner-div">
-                          <i onClick={() => this.getImageUploadModal(row.row)} className="table-icon fas fa-upload fa-lg"></i>
-                          <span className="fa-upload-tooltip table-tooltip">upload images</span>
-                        </div>
-                        <div className="fa-images-div table-icon-inner-div">
-                          <i onClick={() => this.getImageNames(row.row)} className="table-icon fas fa-images fa-lg"></i>
-                          <span className="fa-images-tooltip table-tooltip">see images</span>
-                        </div>
-                      </div>
+                      <AdminImageIcons
+                        uploadModal={this.getImageUploadModal}
+                        getNames={this.getImageNames}
+                        row={row.row}
+                      />
                     )
                   },
                   width: 80

@@ -6,3 +6,5 @@ export * from './TestTable';
 export * from './ReservationsTable';
 export * from './RegistrationsTable';
 export * from './PastRentalsTable';
+export * from "./AdminIcons";
+export * from "./AdminImageIcons";

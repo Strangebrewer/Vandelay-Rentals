@@ -125,6 +125,7 @@ export class AddRentalForm extends Component {
           buttons={this.state.modal.buttons}
           outsideClick={this.outsideClick}
         />
+                <h2>New Rental</h2>
         <form>
           <Input
             value={this.state.name}
