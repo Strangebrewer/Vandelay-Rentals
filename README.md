@@ -1,17 +1,5 @@
 ### 0-Introduction
-This is my forked version of my group's final bootcamp project [final bootcamp project](https://github.com/Kramerica5eva/Vandelay-Rentals) completed in August, 2018. As I make changes, I'll try to note things here for my broad and illustrious audience... I want to use this as a project for refactoring as I learn better practices or want to try a different library or technique for some piece of it. Directly below is my change log. Below that is the original ReadMe.
-
-### 00-Changes Thus Far
-Nov 9, 2018:
-Forked
-Change Modal - No need for react-onclickoutside package just to handle clicking outside a modal. Simplified modal and removed package from package.json.
-Also added simple clickOutside function for modal
-Refine API and routes
-Refactor admin forms
-removed multiple console.logs
-removed unnecessary files (such as test pages for other group members)
-
-
+This is my forked version of my group's final bootcamp project [final bootcamp project](https://github.com/Kramerica5eva/Vandelay-Rentals) completed in August, 2018.
 
 # Vandelay Rentals - Outdoor Gear Rental App
   
